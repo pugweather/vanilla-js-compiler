@@ -1,4 +1,5 @@
 import Lexer from "./Lexer.js";
+import Parser from "./Parser.js"
 import readline from "readline"
 
 
@@ -16,7 +17,31 @@ async function getStdin() {
     })
 }
 
+function printAst(node, prefix = "", isLeft = true) {
+    if (!node) return "";
+
+    let result = "";
+
+    const label = node.type
+        ? `${node.type}: ${node.value}`
+        : `${node.operator.type}: ${node.operator.value}`;
+
+    if (node.right) {
+        result += printAst(node.right, prefix + (isLeft ? "│   " : "    "), false);
+    }
+
+    result += prefix + (isLeft ? "└── " : "┌── ") + label + "\n";
+
+    if (node.left) {
+        result += printAst(node.left, prefix + (isLeft ? "    " : "│   "), true);
+    }
+
+    return result;
+}
+
 async function main() {
+
+    let showTokens = false
 
     while (true) {
 
@@ -33,8 +58,23 @@ async function main() {
             continue
         }
 
+        if (input === "#tokens") {
+            showTokens = !showTokens
+            console.log(showTokens ? "Showing tokens" : "Hiding tokens")
+            continue
+        }
+        
         const lexer = new Lexer(input)
-        lexer.tokenize()
+        let tokens = lexer.tokenize()
+
+        const parser = new Parser(tokens)
+        const ast = parser.parse()
+        
+        console.log(printAst(ast))
+
+        if (showTokens) {
+            console.log(tokens)
+        }
     }
 
 }

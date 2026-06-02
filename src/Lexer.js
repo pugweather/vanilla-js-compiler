@@ -3,7 +3,10 @@ class Lexer {
         this.input = input
         this.tokenizers = [
             {type: "number", regex: /^\d+/},
-            {type: 'binaryOperator', regex: /^[+\-*/]/},
+            {type: 'plusToken', regex: /^\+/ },
+            {type: 'minusToken', regex: /^-/ },
+            {type: 'multiplyToken', regex: /^\*/ },
+            {type: 'divideToken', regex: /^\// },
             {type: 'whitespace', regex: /^\s+/}
         ]
         this.tokens = []
@@ -36,9 +39,15 @@ class Lexer {
 
         }
 
-        console.log(this.tokens)
+        for (let i = 0; i < this.tokens.length; i++) {
+            if (this.tokens[i].type === "whitespace") {
+                this.tokens.splice(i, 1)
+            }
+        }
 
+        this.tokens.push({type: "endOfFile", value: null})
 
+        return this.tokens
 
     }
 }
